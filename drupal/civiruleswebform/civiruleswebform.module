@@ -1,0 +1,45 @@
+<?php
+/**
+ * Implementation of webform_submission_update for CiviRules Webform Submission Trigger
+ *
+ * @param $node
+ * @param $submission
+ * @author Erik Hommel (CiviCooP)
+ * @date 26 Sep 2016
+ * @license AGPL-3.0
+ */
+
+function civiruleswebform_webform_submission_update($node, $submission) {
+  civicrm_initialize();
+
+}
+/**
+ * Implementation of webform_submission_insert for CiviRules Webform Submission Trigger
+ *
+ * @param $node
+ * @param $submission
+ * @author Erik Hommel (CiviCooP)
+ * @date 26 Sep 2016
+ * @license AGPL-3.0
+ */
+
+function civiruleswebform_webform_submission_insert($node, $submission) {
+  //civicrm_initialize();
+  $civirules_entity_data = array(
+    'nid' => $submission->nid,
+    'uid' => $submission->uid,
+    'sid' => $submission->sid,
+    'webform_title' => $node->title,
+    'submitted' => $submission->submitted
+  );
+  foreach ($node->webform['components'] as $component_id => $component_data) {
+    if (isset($submission->data[$component_id])) {
+      $civirules_entity_data['data'][$component_id] = array(
+        'form_key' => $component_data['form_key'],
+        'type' => $component_data['type'],
+        'value' => $submission->data[$component_id]
+      );
+    }
+  }
+  new CRM_Civiruleswebform_TriggerData_Webform('Webform', $submission->nid, $civirules_entity_data);
+}

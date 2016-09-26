@@ -28,6 +28,11 @@ function civiruleswebform_civicrm_xmlMenu(&$files) {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
 function civiruleswebform_civicrm_install() {
+  // ensure CiviRules in installed otherwise error
+  if (CRM_Civiruleswebform_Utils::isCiviRulesEnabled() == FALSE) {
+    throw new Exception('This extension requires CiviRules to be installed and enabled, install the CiviRules extension 
+    and then try again');
+  }
   _civiruleswebform_civix_civicrm_install();
 }
 
@@ -46,6 +51,11 @@ function civiruleswebform_civicrm_uninstall() {
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
 function civiruleswebform_civicrm_enable() {
+  // ensure CiviRules in installed otherwise error
+  if (CRM_Civiruleswebform_Utils::isCiviRulesEnabled() == FALSE) {
+    throw new Exception('This extension requires CiviRules to be installed and enabled, install the CiviRules extension 
+    and then try again');
+  }
   _civiruleswebform_civix_civicrm_enable();
 }
 

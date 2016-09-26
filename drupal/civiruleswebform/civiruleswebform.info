@@ -1,0 +1,6 @@
+name = CiviRules Webform CiviCRM Submission Trigger
+description = Fire civirules trigger engine on webform submission
+package = CiviCRM
+core = 7.x
+dependencies[] = civicrm (>=4.4)
+dependencies[] = webform (>=4.0-beta1)
