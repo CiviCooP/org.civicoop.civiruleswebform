@@ -1,17 +1,29 @@
 <?php
+
 /**
  * Implementation of webform_submission_update for CiviRules Webform Submission Trigger
  *
  * @param $node
  * @param $submission
  * @author Erik Hommel (CiviCooP)
- * @date 26 Sep 2016
+ * @date Sep 2016
+ * @license AGPL-3.0
+ */
+function civiruleswebform_webform_submission_update($node, $submission) {
+  _submit_civirules_webform('update', $node, $submission);
+}
+/**
+ * Implementation of webform_submission_delete for CiviRules Webform Submission Trigger
+ *
+ * @param $node
+ * @param $submission
+ * @author Erik Hommel (CiviCooP)
+ * @date Sep 2016
  * @license AGPL-3.0
  */
 
-function civiruleswebform_webform_submission_update($node, $submission) {
-  civicrm_initialize();
-
+function civiruleswebform_webform_submission_delete($node, $submission) {
+  _submit_civirules_webform('delete', $node, $submission);
 }
 /**
  * Implementation of webform_submission_insert for CiviRules Webform Submission Trigger
@@ -19,13 +31,27 @@ function civiruleswebform_webform_submission_update($node, $submission) {
  * @param $node
  * @param $submission
  * @author Erik Hommel (CiviCooP)
- * @date 26 Sep 2016
+ * @date Sep 2016
  * @license AGPL-3.0
  */
 
 function civiruleswebform_webform_submission_insert($node, $submission) {
+  _submit_civirules_webform('insert', $node, $submission);
+}
+
+/**
+ * Function to submit the webform data to civirules, triggering the trigger webform submitted
+ *
+ * @author Erik Hommel (CiviCooP)
+ * @date Sep 2016
+ * @param $op
+ * @param $node
+ * @param $submission
+ */
+function _submit_civirules_webform($op, $node, $submission) {
   //civicrm_initialize();
   $civirules_entity_data = array(
+    'op' => $op,
     'nid' => $submission->nid,
     'uid' => $submission->uid,
     'sid' => $submission->sid,
@@ -41,5 +67,6 @@ function civiruleswebform_webform_submission_insert($node, $submission) {
       );
     }
   }
-  new CRM_Civiruleswebform_TriggerData_Webform('Webform', $submission->nid, $civirules_entity_data);
+  $trigger = new CRM_Civiruleswebform_Trigger();
+  $trigger->triggerTrigger($op, 'Webform', $submission->nid, $civirules_entity_data);
 }
