@@ -22,13 +22,8 @@ class CRM_Civiruleswebform_TriggerData_Webform extends CRM_Civirules_TriggerData
     parent::__construct();
 
     $this->entity = $entity;
-
     $this->setEntityData($entity, $data);
-
-    // todo figure out what to do with contact id if there is anything generic to do (like find the contact belonging to uid)
-    if (isset($data->contact_id)) {
-      $this->contact_id = $data['contact_id'];
-    }
+    $this->setContactId($data['contact_id']);
   }
 
   /**

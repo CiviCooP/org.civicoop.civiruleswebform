@@ -46,7 +46,7 @@ class CRM_Civiruleswebform_Utils {
         civicrm_api3('CiviRuleTrigger', 'create', array(
           'name' => $triggerName,
           'label' => 'Drupal Webform is submitted (new or updated)',
-          'class_name' => 'CRM_Civirulewebform_Trigger',
+          'class_name' => 'CRM_Civiruleswebform_Trigger',
           'is_active' => 1,
           'created_date' => $nowDate->format('Y-m-d')
         ));
@@ -69,5 +69,72 @@ class CRM_Civiruleswebform_Utils {
       $triggerId = civicrm_api3('CiviRuleTrigger', 'getvalue', array('name' => $triggerName, 'return' => 'id'));
       civicrm_api3('CiviRuleTrigger', 'delete', array('id' => $triggerId));
     } catch (CiviCRM_API3_Exception $ex) {}
+  }
+
+  /**
+   * Method to determine if installation is PUM
+   *
+   * @return bool
+   */
+  public static function installIsPUM() {
+    try {
+      $contactName = civicrm_api3('Contact', 'getvalue', array(
+        'id' => 1,
+        'return' => 'sort_name'));
+      if ($contactName == "PUM Netherlands senior experts") {
+        return TRUE;
+      }
+    } catch (CiviCRM_API3_Exception $ex) {}
+    return FALSE;
+  }
+
+  /**
+   * Method to get all webforms from drupal node table
+   */
+  public static function getWebforms() {
+    $result = array();
+    $query = db_select('node', 'n')
+      ->fields('n', array('nid', 'title'))
+      ->condition('n.type', 'webform');
+    $webForms = $query->execute();
+    if ($webForms->rowCount()) {
+      foreach ($webForms as $webForm) {
+        $result[$webForm->nid] = $webForm->title;
+      }
+    }
+    return $result;
+  }
+
+  /**
+   * Method to get webform title with webform id
+   *
+   * @param $webformId
+   * @return mixed
+   */
+  public static function getWebformTitle($webformId) {
+    return db_query('SELECT title FROM {node} where nid = :webformId', array('webformId' => $webformId))
+      ->fetchField();
+  }
+
+  /**
+   * Method to get the contact id if install is PUM because uid is not enough. Forms can be entered by
+   * rep or prof?
+   *
+   * @param $entityData
+   * @return $contactId
+   */
+  public static function getPUMContactId($entityData) {
+    $contactId = NULL;
+    // create customer account webform
+    if ($entityData['nid'] == 746 || $entityData['nid'] == 747 || $entityData['nid'] == 748) {
+      $query = 'SELECT MAX(id) FROM civicrm_contact WHERE organization_name = %1';
+      foreach ($entityData['data'] as $componentId => $component) {
+        if ($component['form_key'] == 'civicrm_1_contact_1_contact_organization_name') {
+          $orgName = $component['value'][0];
+          $contactId = CRM_Core_DAO::singleValueQuery($query, array(1 => array($orgName, 'String')));
+        }
+      }
+    }
+    return $contactId;
   }
 }

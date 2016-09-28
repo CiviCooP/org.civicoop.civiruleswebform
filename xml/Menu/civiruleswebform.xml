@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<menu>
+  <item>
+    <path>civicrm/civiruleswebform/conditions/form/webformtitle</path>
+    <page_callback>CRM_Civiruleswebform_Conditions_Form_WebFormTitle</page_callback>
+    <title>WebFormTitle</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+</menu>

@@ -10,7 +10,7 @@
  * @license AGPL-3.0
  */
 function civiruleswebform_webform_submission_update($node, $submission) {
-  _submit_civirules_webform('update', $node, $submission);
+  //_submit_civirules_webform('update', $node, $submission);
 }
 /**
  * Implementation of webform_submission_delete for CiviRules Webform Submission Trigger
@@ -23,7 +23,7 @@ function civiruleswebform_webform_submission_update($node, $submission) {
  */
 
 function civiruleswebform_webform_submission_delete($node, $submission) {
-  _submit_civirules_webform('delete', $node, $submission);
+  //_submit_civirules_webform('delete', $node, $submission);
 }
 /**
  * Implementation of webform_submission_insert for CiviRules Webform Submission Trigger
@@ -55,18 +55,37 @@ function _submit_civirules_webform($op, $node, $submission) {
     'nid' => $submission->nid,
     'uid' => $submission->uid,
     'sid' => $submission->sid,
+    'translation_of_id' => translation_node_get_translations($node->tnid),
     'webform_title' => $node->title,
     'submitted' => $submission->submitted
   );
-  foreach ($node->webform['components'] as $component_id => $component_data) {
-    if (isset($submission->data[$component_id])) {
-      $civirules_entity_data['data'][$component_id] = array(
-        'form_key' => $component_data['form_key'],
-        'type' => $component_data['type'],
-        'value' => $submission->data[$component_id]
-      );
+  $contact_id = _retrieve_contact_id_with_user_id($submission->uid);
+  if ($node->webform['components']) {
+    foreach ($node->webform['components'] as $component_id => $component_data) {
+      if (isset($submission->data[$component_id])) {
+        $civirules_entity_data['data'][$component_id] = array(
+          'form_key' => $component_data['form_key'],
+          'type' => $component_data['type'],
+          'value' => $submission->data[$component_id]
+        );
+      }
     }
   }
+  if (CRM_Civiruleswebform_Utils::installIsPUM() == TRUE) {
+    $contact_id = CRM_Civiruleswebform_Utils::getPUMContactId($civirules_entity_data);
+  }
+  $civirules_entity_data['contact_id'] = $contact_id;
   $trigger = new CRM_Civiruleswebform_Trigger();
   $trigger->triggerTrigger($op, 'Webform', $submission->nid, $civirules_entity_data);
+}
+
+/**
+ * Function to get the civicrm contact id of the user id
+ * @param $userId
+ * @return array
+ */
+function _retrieve_contact_id_with_user_id($userId) {
+  return civicrm_api3('UFMatch', 'getvalue', array(
+    'uf_id' => $userId,
+    'return' => 'contact_id'));
 }
