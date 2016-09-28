@@ -63,7 +63,7 @@ function civiruleswebform_civicrm_enable() {
     throw new Exception('This extension requires CiviRules to be installed and enabled, install the CiviRules extension 
     and then try again');
   }
-  CRM_Civiruleswebform_Utils::addTriggerWebformSubmit();
+  CRM_Civiruleswebform_Utils::addTriggersWebformSubmit();
   _civiruleswebform_civix_civicrm_enable();
 }
 
