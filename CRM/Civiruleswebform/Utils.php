@@ -81,7 +81,8 @@ class CRM_Civiruleswebform_Utils {
       $contactName = civicrm_api3('Contact', 'getvalue', array(
         'id' => 1,
         'return' => 'sort_name'));
-      if ($contactName == "PUM Netherlands senior experts") {
+      $contactName = strtolower($contactName);
+      if ($contactName == "pum netherlands senior experts") {
         return TRUE;
       }
     } catch (CiviCRM_API3_Exception $ex) {}

@@ -55,7 +55,14 @@ class CRM_Civiruleswebform_Trigger extends CRM_Civirules_Trigger {
     }
   }
   /**
-   *
+   * Public getter for objectName
+   */
+  public function getObjectName() {
+    return $this->objectName;
+  }
+
+  /**
+   * Method to ge trigger id
    */
   private function getTriggerIdForWebformSubmission() {
     try {
