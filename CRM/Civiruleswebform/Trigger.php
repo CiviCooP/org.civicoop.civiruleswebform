@@ -36,17 +36,17 @@ class CRM_Civiruleswebform_Trigger extends CRM_Civirules_Trigger {
    * Trigger a rule for this trigger. In this case it will be called from the drupal module
    *
    * @param $op
-   * @param $objectName
-   * @param $objectId
-   * @param $objectRef
+   * @param $entity
+   * @param $nid
+   * @param $data
    */
-  public function triggerTrigger($op, $objectName, $objectId, $objectRef) {
+  public function triggerTrigger($op, $entity, $nid, $data) {
     $this->op = $op;
-    $this->objectName = $objectName;
-    $this->triggerParams = $objectRef;
+    $this->objectName = $entity;
+    $this->triggerParams = $data;
     // find all rules with the specific trigger and trigger each rule
     $this->setTriggerId($this->getTriggerIdForWebformSubmission());
-    $triggerData = new CRM_Civiruleswebform_TriggerData_Webform($objectName, $objectId, $objectRef);
+    $triggerData = new CRM_Civiruleswebform_TriggerData_Webform($entity, $nid, $data);
     $triggerData->setTrigger($this);
     $rules = CRM_Civirules_BAO_Rule::getRuleIdsByTriggerId($this->getTriggerId());
     foreach ($rules as $ruleId) {

@@ -45,7 +45,7 @@ class CRM_Civiruleswebform_Utils {
       try {
         civicrm_api3('CiviRuleTrigger', 'create', array(
           'name' => $triggerName,
-          'label' => 'Drupal Webform is submitted (new or updated)',
+          'label' => 'Drupal Webform is submitted (insert)',
           'class_name' => 'CRM_Civiruleswebform_Trigger',
           'is_active' => 1,
           'created_date' => $nowDate->format('Y-m-d')
@@ -114,27 +114,5 @@ class CRM_Civiruleswebform_Utils {
   public static function getWebformTitle($webformId) {
     return db_query('SELECT title FROM {node} where nid = :webformId', array('webformId' => $webformId))
       ->fetchField();
-  }
-
-  /**
-   * Method to get the contact id if install is PUM because uid is not enough. Forms can be entered by
-   * rep or prof?
-   *
-   * @param $entityData
-   * @return $contactId
-   */
-  public static function getPUMContactId($entityData) {
-    $contactId = NULL;
-    // create customer account webform
-    if ($entityData['nid'] == 746 || $entityData['nid'] == 747 || $entityData['nid'] == 748) {
-      $query = 'SELECT MAX(id) FROM civicrm_contact WHERE organization_name = %1';
-      foreach ($entityData['data'] as $componentId => $component) {
-        if ($component['form_key'] == 'civicrm_1_contact_1_contact_organization_name') {
-          $orgName = $component['value'][0];
-          $contactId = CRM_Core_DAO::singleValueQuery($query, array(1 => array($orgName, 'String')));
-        }
-      }
-    }
-    return $contactId;
   }
 }

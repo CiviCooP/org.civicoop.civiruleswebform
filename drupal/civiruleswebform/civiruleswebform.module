@@ -59,7 +59,6 @@ function _submit_civirules_webform($op, $node, $submission) {
     'webform_title' => $node->title,
     'submitted' => $submission->submitted
   );
-  $contact_id = _retrieve_contact_id_with_user_id($submission->uid);
   if ($node->webform['components']) {
     foreach ($node->webform['components'] as $component_id => $component_data) {
       if (isset($submission->data[$component_id])) {
@@ -72,9 +71,13 @@ function _submit_civirules_webform($op, $node, $submission) {
     }
   }
   if (CRM_Civiruleswebform_Utils::installIsPUM() == TRUE) {
-    $contact_id = CRM_Civiruleswebform_Utils::getPUMContactId($civirules_entity_data);
+    if (method_exists('CRM_Doorloopcustomer_Webform', 'processWebform')) {
+      CRM_Doorloopcustomer_Webform::processWebform($civirules_entity_data);
+    }
   }
-  $civirules_entity_data['contact_id'] = $contact_id;
+  if (!$civirules_entity_data['contact_id']) {
+    $civirules_entity_data['contact_id'] = _retrieve_contact_id_with_user_id($submission->uid);
+  }
   $trigger = new CRM_Civiruleswebform_Trigger();
   $trigger->triggerTrigger($op, 'Webform', $submission->nid, $civirules_entity_data);
 }

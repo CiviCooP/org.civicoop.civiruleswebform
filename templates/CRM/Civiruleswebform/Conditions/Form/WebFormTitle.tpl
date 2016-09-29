@@ -5,7 +5,7 @@
     <div class="content">{$form.operator.html}</div>
     <div class="clear"></div>
   </div>
-  <div class="crm-section sector-section">
+  <div class="crm-section webofrm_title-section">
     <div class="label">
       <label for="webform-select">{ts}Webform(s){/ts}</label>
     </div>
