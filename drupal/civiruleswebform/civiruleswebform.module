@@ -49,7 +49,15 @@ function civiruleswebform_webform_submission_insert($node, $submission) {
  * @param $submission
  */
 function _submit_civirules_webform($op, $node, $submission) {
-  //civicrm_initialize();
+
+  // Load the civicrm submission if webform_civicrm is enabled.
+  if (module_exists('webform_civicrm')) {
+    $submissions = array($submission->sid => $submission);
+    webform_civicrm_webform_submission_load($submissions);
+    $submission = $submissions[$submission->sid];
+  }
+
+
   $civirules_entity_data = array(
     'op' => $op,
     'nid' => $submission->nid,
@@ -70,16 +78,57 @@ function _submit_civirules_webform($op, $node, $submission) {
       }
     }
   }
+
   if (CRM_Civiruleswebform_Utils::installIsPUM() == TRUE) {
     if (method_exists('CRM_Doorloopcustomer_Webform', 'processWebform')) {
       CRM_Doorloopcustomer_Webform::processWebform($civirules_entity_data);
     }
   }
+
+  // Check whether an activity is submitted and check whether that activity is linked to case.
+  // If so set the case_id in the civirules_entity_data.
+  if (empty($civirules_entity_data['case_id']) && isset($submission->civicrm) && isset($submission->civicrm['activity_id'])) {
+    $caseActivity = new CRM_Case_DAO_CaseActivity();
+    $caseActivity->activity_id = $submission->civicrm['activity_id'];
+    if ($caseActivity->find(TRUE)) {
+      $civirules_entity_data['case_id'] = $caseActivity->case_id;
+    }
+  }
+
   if (!$civirules_entity_data['contact_id']) {
     $civirules_entity_data['contact_id'] = _retrieve_contact_id_with_user_id($submission->uid);
   }
   $trigger = new CRM_Civiruleswebform_Trigger();
   $trigger->triggerTrigger($op, 'Webform', $submission->nid, $civirules_entity_data);
+}
+
+/**
+ * Make sure that the hooks gets executed after webform_civicrm has done its processing.
+ *
+ * @param $module_list
+ * @param $context
+ */
+function civiruleswebform_module_implements_alter(&$module_list, $context) {
+  switch ($context) {
+    case 'webform_submission_insert':
+    case 'webform_submission_delete':
+    case 'webform_submission_update':
+      $old_module_list = $module_list;
+      $module_list = array();
+      // Walk trhough the old list and add the hook to the new list. Unles the module
+      // is this module. Then don't add this module but only add this module after webform_civicrm.
+      foreach ($old_module_list as $module => $hook) {
+        if ($module != 'civiruleswebform') {
+          $module_list[$module] = $hook;
+        }
+        if ($module == 'webform_civicrm') {
+          $module_list['civiruleswebform'] = $old_module_list['civiruleswebform'];
+        }
+      }
+
+      break;
+  }
+
 }
 
 /**

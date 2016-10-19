@@ -23,6 +23,12 @@ class CRM_Civiruleswebform_Trigger extends CRM_Civirules_Trigger {
     return new CRM_Civirules_TriggerData_EntityDefinition('webform', $entity, $this->getDaoClassName(), $entity);
   }
 
+  protected function getAdditionalEntities() {
+    $entities = parent::getAdditionalEntities();
+    $entities[] = new CRM_Civirules_TriggerData_EntityDefinition('Case', 'Case', 'CRM_Case_DAO_Case' , 'Case');
+    return $entities;
+  }
+
   /**
    * Return the name of the DAO Class. If a dao class does not exist return an empty value
    *
@@ -48,6 +54,17 @@ class CRM_Civiruleswebform_Trigger extends CRM_Civirules_Trigger {
     $this->setTriggerId($this->getTriggerIdForWebformSubmission());
     $triggerData = new CRM_Civiruleswebform_TriggerData_Webform($entity, $nid, $data);
     $triggerData->setTrigger($this);
+
+    // Set the case data.
+    if (!empty($data['case_id'])) {
+      try {
+        $case = civicrm_api3('Case', 'getsingle', array('id' => $data['case_id']));
+        $triggerData->setEntityData('Case', $case);
+      } catch (Exception $e) {
+        // Do nothing.
+      }
+    }
+
     $rules = CRM_Civirules_BAO_Rule::getRuleIdsByTriggerId($this->getTriggerId());
     foreach ($rules as $ruleId) {
       $this->setRuleId($ruleId);
