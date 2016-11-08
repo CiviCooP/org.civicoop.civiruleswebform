@@ -95,7 +95,7 @@ function _submit_civirules_webform($op, $node, $submission) {
     }
   }
 
-  if (!$civirules_entity_data['contact_id']) {
+  if (!$civirules_entity_data['contact_id'] && !empty($submission->uid)) {
     $civirules_entity_data['contact_id'] = _retrieve_contact_id_with_user_id($submission->uid);
   }
   $trigger = new CRM_Civiruleswebform_Trigger();
