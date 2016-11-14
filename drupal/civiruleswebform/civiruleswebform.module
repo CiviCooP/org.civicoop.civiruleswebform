@@ -95,7 +95,7 @@ function _submit_civirules_webform($op, $node, $submission) {
     }
   }
 
-  if (!$civirules_entity_data['contact_id']) {
+  if (!isset($civirules_entity_data['contact_id']) || empty($civirules_entity_data['contact_id'])) {
     $civirules_entity_data['contact_id'] = _retrieve_contact_id_with_user_id($submission->uid);
   }
   $trigger = new CRM_Civiruleswebform_Trigger();
@@ -137,7 +137,11 @@ function civiruleswebform_module_implements_alter(&$module_list, $context) {
  * @return array
  */
 function _retrieve_contact_id_with_user_id($userId) {
-  return civicrm_api3('UFMatch', 'getvalue', array(
-    'uf_id' => $userId,
-    'return' => 'contact_id'));
+  try {
+    return civicrm_api3('UFMatch', 'getvalue', array(
+      'uf_id' => $userId,
+      'return' => 'contact_id'));
+  } catch (CiviCRM_API3_Exception $ex) {
+    return FALSE;
+  }
 }
