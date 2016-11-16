@@ -23,7 +23,9 @@ class CRM_Civiruleswebform_TriggerData_Webform extends CRM_Civirules_TriggerData
 
     $this->entity = $entity;
     $this->setEntityData($entity, $data);
-    $this->setContactId($data['contact_id']);
+    if (isset($data['contact_id'])) {
+      $this->setContactId($data['contact_id']);
+    }
   }
 
   /**
