@@ -87,7 +87,21 @@ function _submit_civirules_webform($op, $node, $submission) {
 
   // Check whether an activity is submitted and check whether that activity is linked to case.
   // If so set the case_id in the civirules_entity_data.
-  if (empty($civirules_entity_data['case_id']) && isset($submission->civicrm) && isset($submission->civicrm['activity_id'])) {
+  if (empty($civirules_entity_data['case_id']) && isset($submission->civicrm) && isset($submission->civicrm['case'])) {
+    $case = reset($submission->civicrm['case']);
+    if (isset($case['id'])) {
+      $civirules_entity_data['case_id'] = $case['id'];
+    }
+  } elseif (empty($civirules_entity_data['case_id']) && isset($submission->civicrm) && isset($submission->civicrm['activity'])) {
+    $activity = reset($submission->civicrm['activity']);
+    if (isset($activity['id'])) {
+      $caseActivity = new CRM_Case_DAO_CaseActivity();
+      $caseActivity->activity_id = $activity['id'];
+      if ($caseActivity->find(TRUE)) {
+        $civirules_entity_data['case_id'] = $caseActivity->case_id;
+      }
+    }
+  } elseif (empty($civirules_entity_data['case_id']) && isset($submission->civicrm) && isset($submission->civicrm['activity_id'])) {
     $caseActivity = new CRM_Case_DAO_CaseActivity();
     $caseActivity->activity_id = $submission->civicrm['activity_id'];
     if ($caseActivity->find(TRUE)) {
