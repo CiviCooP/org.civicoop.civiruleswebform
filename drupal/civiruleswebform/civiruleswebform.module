@@ -109,6 +109,11 @@ function _submit_civirules_webform($op, $node, $submission) {
     }
   }
 
+  // Check if there is a contribution
+  if (empty($civirules_entity_data['contribution_id']) && isset($submission->civicrm) && isset($submission->civicrm['contribution'])) {
+    $civirules_entity_data['contribution_id'] = $submission->civicrm['contribution'][1]['id'];
+  }
+
   if (!isset($civirules_entity_data['contact_id']) || empty($civirules_entity_data['contact_id'])) {
     if (!empty($submission->uid)) {
       $civirules_entity_data['contact_id'] = _retrieve_contact_id_with_user_id($submission->uid);
